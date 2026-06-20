@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 import os
 import todo
 
@@ -18,26 +17,23 @@ class TestTodoList(unittest.TestCase):
 
     def test_load_tasks_empty(self):
         """Verify that starting without a file yields an empty list."""
-        tasks = todo.load_tasks()
+        tasks = todo.load_tasks(todo.DATA_FILE)
         self.assertEqual(tasks, [])
 
     def test_add_task(self):
         """Verify that a task is successfully appended and ID is assigned."""
         tasks = []
-        with patch('builtins.input', return_value="Finish Python assignment"):
-            todo.add_task(tasks)
+        new_task = todo.add_task_to_list(tasks, "Finish Python assignment")
         
         self.assertEqual(len(tasks), 1)
-        self.assertEqual(tasks[0]["id"], 1)
-        self.assertEqual(tasks[0]["task"], "Finish Python assignment")
-        self.assertEqual(tasks[0]["completed"], False)
+        self.assertEqual(new_task["id"], 1)
+        self.assertEqual(new_task["task"], "Finish Python assignment")
+        self.assertEqual(new_task["completed"], False)
 
     def test_mark_task_completed(self):
         """Verify that a task can be marked as completed."""
         tasks = [{"id": 1, "task": "Finish Python assignment", "completed": False}]
-        with patch('builtins.input', return_value="1"):
-            todo.mark_task_completed(tasks)
-        
+        todo.mark_task_status(tasks, 1, completed=True)
         self.assertTrue(tasks[0]["completed"])
 
     def test_delete_task(self):
@@ -46,9 +42,8 @@ class TestTodoList(unittest.TestCase):
             {"id": 1, "task": "Finish Python assignment", "completed": False},
             {"id": 2, "task": "Submit report", "completed": False}
         ]
-        with patch('builtins.input', return_value="1"):
-            todo.delete_task(tasks)
-        
+        removed = todo.delete_task_from_list(tasks, 1)
+        self.assertEqual(removed["task"], "Finish Python assignment")
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0]["id"], 2)  # Remaining task
 
